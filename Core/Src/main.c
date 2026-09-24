@@ -45,6 +45,8 @@ COM_InitTypeDef BspCOMInit;
 
 /* USER CODE BEGIN PV */
 
+volatile uint8_t userButtonPressed = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -67,6 +69,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+  uint32_t heartbeat = 0;
 
   /* USER CODE END 1 */
 
@@ -89,6 +92,8 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
+
+  printf("Aegis booting...\r\n");
 
   /* USER CODE END 2 */
 
@@ -113,12 +118,26 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    BSP_LED_Toggle(LED_GREEN);
-    HAL_Delay(500);
+      heartbeat++;
 
-    /* USER CODE END WHILE */
+      printf("[AEGIS] Heartbeat: %lu | Uptime: %lu ms\r\n",
+            heartbeat,
+            HAL_GetTick());
 
-    /* USER CODE BEGIN 3 */
+      BSP_LED_Toggle(LED_GREEN);
+
+      HAL_Delay(2000);
+
+      if (userButtonPressed)
+      {
+          userButtonPressed = 0;
+
+          printf("[INPUT] USER button pressed\r\n");
+      }
+
+      /* USER CODE END WHILE */
+
+      /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
@@ -192,6 +211,14 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void BSP_PB_Callback(Button_TypeDef Button)
+{
+    if (Button == BUTTON_USER)
+    {
+        userButtonPressed = 1;
+    }
+}
 
 /* USER CODE END 4 */
 
